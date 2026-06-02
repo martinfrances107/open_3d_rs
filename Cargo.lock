@@ -194,7 +194,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "o3d_rs"
+name = "open_3d_rs"
 version = "0.1.0"
 dependencies = [
  "enum-map",

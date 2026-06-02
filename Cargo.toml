@@ -8,6 +8,7 @@ metadata = []
 license = "MIT"
 categories = ["Graphics", "Science"]
 keywords =["reconstruction", "surface"]
+repository = "https://github.com/martinfrances107/open_3d_rs.git"
 
 [[example]]
 # From a point cloud, mesh reconstruction using the possion method
