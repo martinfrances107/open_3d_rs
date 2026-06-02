@@ -1,0 +1,14 @@
+[package]
+name = "eagle"
+version = "0.1.0"
+authors.workspace = true
+description = "Point Cloud to mesh using Poission method."
+categories.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+
+[dependencies]
+o3d_rs = { path = "../../lib/" }

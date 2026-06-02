@@ -1,0 +1,24 @@
+[package]
+name = "open_3d_rs"
+version = "0.1.0"
+edition = "2024"
+description = "Surface Reconstruction Utilities"
+readme = "./README.md"
+metadata = []
+license = "MIT"
+categories = ["Graphics", "Science"]
+keywords =["reconstruction", "surface"]
+
+[[example]]
+# From a point cloud, mesh reconstruction using the possion method
+# ( better at handling noisy data that the bpa algorithm )
+name = "eagle"
+crate-type = ["bin"] # Default is bin, but can be changed to "staticlib" or "cdylib"
+test = false
+
+[dependencies]
+enum-map = "2.7.3"
+nalgebra = "0.35.0"
+log = "0.4.30"
+num-traits = "0.2.19"
+poisson_recon_rs = {path="../poisson_recon_rs/"}
