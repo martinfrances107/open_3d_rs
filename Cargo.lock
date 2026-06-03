@@ -207,6 +207,7 @@ dependencies = [
 [[package]]
 name = "poisson_recon_rs"
 version = "0.1.0"
+source = "git+https://github.com/martinfrances107/poisson_recon_rs.git?branch=main#0d45d726acbaf0de01450b1c42021805f74135f6"
 dependencies = [
  "rayon",
 ]
