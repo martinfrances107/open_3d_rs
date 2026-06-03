@@ -13,7 +13,7 @@ use crate::geometry::point_cloud::PointCloud;
 #[derive(Debug)]
 pub struct Mesh<REAL, const N: usize>([Vector3<REAL>; N]);
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct TriangleMesh<REAL> {
     triangles: Vector3<i32>,
     triangle_normals: Vec<Vector3<REAL>>,

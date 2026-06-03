@@ -1,5 +1,8 @@
 use std::time::SystemTime;
 
+use log::error;
+
+// use crate::geometry::GeometryType::TriangleMesh;
 use crate::geometry::point_cloud::PointCloud;
 use crate::geometry::surface_reconstruction_poisson::open3d_data::Open3DData;
 use crate::geometry::triangle_mesh::Mesh;
@@ -24,15 +27,69 @@ pub mod open3d_point_stream;
 pub mod open3d_vertex;
 pub mod xform;
 
-fn create_from_point_cloud_poisson<MESH, REAL>(
+#[derive(Debug)]
+pub struct NoNormalError;
+
+#[derive(Debug)]
+pub enum Fit {
+    Linear,
+    NonLinear,
+}
+
+#[derive(Debug)]
+pub struct PointCloudPoissonOptions {
+    pub depth: usize,
+    pub width: f32,
+    pub scale: f32,
+    pub fit: Fit,
+    pub n_thread: i8,
+}
+
+impl Default for PointCloudPoissonOptions {
+    fn default() -> Self {
+        Self {
+            depth: 8usize,
+            width: 0_f32,
+            scale: 1.1_f32,
+            fit: Fit::NonLinear,
+            n_thread: -1,
+        }
+    }
+}
+
+///
+/// # Errors
+/// When the point cloud has no normals.
+///
+pub fn create_from_point_cloud_poisson<REAL, MESH>(
     pcd: &PointCloud<REAL>,
-    depth: usize,
-    width: f64,
-    scale: f64,
-    linear_fit: bool,
-    n_thread: i32,
-) -> (MESH, Vec<REAL>) {
-    todo!();
+) -> Result<(MESH, Vec<f64>), NoNormalError>
+where
+    MESH: Default,
+{
+    let options = PointCloudPoissonOptions::default();
+    create_from_point_cloud_poisson_with_options(pcd, &options)
+}
+
+///
+/// # Errors
+/// When the point cloud has no normals.
+///
+pub fn create_from_point_cloud_poisson_with_options<REAL, MESH>(
+    pcd: &PointCloud<REAL>,
+    options: &PointCloudPoissonOptions,
+) -> Result<(MESH, Vec<f64>), NoNormalError>
+where
+    MESH: Default,
+{
+    if !pcd.has_normals() {
+        error!("Point clould has no normals");
+        return Err(NoNormalError);
+    }
+    let mesh = MESH::default();
+    let densities = vec![];
+
+    Ok((mesh, densities))
 }
 
 // IF F - f32 V must be Vec3

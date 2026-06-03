@@ -62,6 +62,7 @@ pub enum GeometryType {
 
 pub trait GeometryTrait {
     fn is_empty(&self) -> bool;
+    #[must_use]
     fn clear(&self) -> Self;
     fn geometry_type(&self) -> GeometryType;
     fn dimension(&self) -> usize;
@@ -148,8 +149,8 @@ impl GeometryTrait for Geometry<'_> {
         todo!()
     }
 }
-impl<'a, REAL: 'static + Clone + std::fmt::Debug + PartialEq>
-    Geometry3DTrait<REAL> for Geometry<'a>
+impl<REAL: 'static + Clone + std::fmt::Debug + PartialEq> Geometry3DTrait<REAL>
+    for Geometry<'_>
 {
     fn get_center() -> Point3<REAL> {
         todo!()

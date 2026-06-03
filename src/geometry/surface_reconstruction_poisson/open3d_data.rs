@@ -13,9 +13,9 @@ use std::fmt::Debug;
 
 // V is  Vec3 or DVec
 #[derive(Debug)]
-pub struct Open3DData<REAL: Default + Debug, const D: usize>
+pub struct Open3DData<REAL, const D: usize>
 where
-    REAL: 'static + Clone + std::fmt::Debug + PartialEq,
+    REAL: 'static + Clone + std::fmt::Debug + Default + PartialEq,
 {
     normal: Point<REAL, D>,
     color: Point<REAL, D>,
@@ -27,8 +27,8 @@ where
 {
     fn default() -> Self {
         Self {
-            normal: Default::default(),
-            color: Default::default(),
+            normal: Point::default(),
+            color: Point::default(),
         }
     }
 }
@@ -36,11 +36,7 @@ where
 // F: f32 or f64
 impl<REAL, const D: usize> Mul<REAL> for Open3DData<REAL, D>
 where
-    REAL: Clone
-        + std::fmt::Debug
-        + Default
-        + PartialEq
-        + Mul<Open3DData<REAL, D>>,
+    REAL: Clone + std::fmt::Debug + Default + PartialEq + Mul<Self>,
 {
     type Output = Self;
 
@@ -70,7 +66,7 @@ where
         todo!()
     }
 }
-impl<const D: usize> Add<Open3DData<f64, D>> for Open3DData<f64, D>
+impl<const D: usize> Add<Self> for Open3DData<f64, D>
 where
     Point<f64, D>: Add<Point<f64, D>>,
 {

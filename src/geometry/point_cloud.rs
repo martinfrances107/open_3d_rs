@@ -15,7 +15,7 @@ pub enum PointCloudKey {
 #[derive(Debug, Hash, PartialEq)]
 struct Tensor();
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct PointCloud<REAL> {
     pub points: Vec<Vector3<REAL>>,
     pub normals: Vec<Vector3<REAL>>,
