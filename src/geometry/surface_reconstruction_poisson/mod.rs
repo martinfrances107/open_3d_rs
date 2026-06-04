@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::time::SystemTime;
 
 use log::error;
@@ -5,6 +6,8 @@ use log::error;
 // use crate::geometry::GeometryType::TriangleMesh;
 use crate::geometry::point_cloud::PointCloud;
 use crate::geometry::surface_reconstruction_poisson::open3d_data::Open3DData;
+use crate::geometry::surface_reconstruction_poisson::open3d_point_stream::Open3DPointStream;
+use crate::geometry::surface_reconstruction_poisson::xform::XForm;
 use crate::geometry::triangle_mesh::Mesh;
 use crate::geometry::triangle_mesh::TriangleMesh;
 
@@ -63,9 +66,10 @@ impl Default for PointCloudPoissonOptions {
 ///
 pub fn create_from_point_cloud_poisson<REAL, MESH>(
     pcd: &PointCloud<REAL>,
-) -> Result<(MESH, Vec<f64>), NoNormalError>
+) -> Result<(Arc<MESH>, Vec<f64>), NoNormalError>
 where
     MESH: Default,
+    REAL: 'static + Clone + Copy + std::fmt::Debug + Default + PartialEq,
 {
     let options = PointCloudPoissonOptions::default();
     create_from_point_cloud_poisson_with_options(pcd, &options)
@@ -78,17 +82,27 @@ where
 pub fn create_from_point_cloud_poisson_with_options<REAL, MESH>(
     pcd: &PointCloud<REAL>,
     options: &PointCloudPoissonOptions,
-) -> Result<(MESH, Vec<f64>), NoNormalError>
+) -> Result<(Arc<MESH>, Vec<f64>), NoNormalError>
 where
     MESH: Default,
+    REAL: 'static + Clone + Copy + std::fmt::Debug + Default + PartialEq,
 {
+    let PointCloudPoissonOptions {
+        depth,
+        width,
+        scale,
+        fit,
+        n_thread,
+    } = options;
     if !pcd.has_normals() {
         error!("Point clould has no normals");
         return Err(NoNormalError);
     }
-    let mesh = MESH::default();
+
+    let mesh = Arc::new(MESH::default());
     let densities = vec![];
 
+    execute(pcd, &mesh, &densities, *depth, *width, *scale, *fit);
     Ok((mesh, densities))
 }
 
@@ -96,16 +110,16 @@ where
 // if F - f64 V must be DVec3
 fn execute<REAL, const D: usize, SAMPLEDATA, FEMSIGNS>(
     pcd: &PointCloud<REAL>,
-    out_mesh: &TriangleMesh<REAL>,
+    out_mesh: &Arc<TriangleMesh<REAL>>,
     out_densities: &[f64],
-    depth: i32,
+    depth: usize,
     width: f32,
     scale: f32,
-    linear_fit: bool,
+    fit: Fit,
     // TODO what about
     //  UIntPack<FEMSigs...>
 ) where
-    REAL: 'static + Clone + std::fmt::Debug + Default + PartialEq,
+    REAL: 'static + Clone + Copy + std::fmt::Debug + Default + PartialEq,
 {
     let datax = 32_f32;
     let base_depth = 0;
@@ -132,4 +146,12 @@ fn execute<REAL, const D: usize, SAMPLEDATA, FEMSIGNS>(
     //let normal_info = None;
     // TODO Real targetValue = (Real)0.5;
     let terget_value = 0.5_f32;
+
+    {
+        let point_stream = Open3DPointStream::new(*pcd);
+        if width > 0.0 {
+            // let xform = XForm::get_point_x_form_with_scale(scale_factor)
+            todo!();
+        }
+    }
 }

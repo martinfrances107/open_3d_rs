@@ -14,7 +14,7 @@ use crate::geometry::surface_reconstruction_poisson::xform::XForm;
 
 /// which is a third party device like the XBOX scanner.
 // CPP version depends on InputPointStreamWithData
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Open3DPointStream<REAL: Copy> {
     pcd: PointCloud<REAL>,
     xform: Option<XForm<REAL, 4>>,
@@ -48,7 +48,7 @@ impl<REAL> Open3DPointStream<REAL>
 where
     REAL: Copy + std::fmt::Debug + Default + PartialEq,
 {
-    const fn new(pcd: PointCloud<REAL>) -> Self {
+    pub const fn new(pcd: PointCloud<REAL>) -> Self {
         Self {
             pcd,
             xform: None,
