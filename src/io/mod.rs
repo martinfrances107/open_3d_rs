@@ -34,7 +34,7 @@ fn read_point_cloud_from_plt<REAL>(
 ) -> bool {
     todo!();
 }
-pub type Point<REAL, const DIM: usize> = [REAL; DIM];
+// pub type Point<REAL, const DIM: usize> = [REAL; DIM];
 
 #[derive(Clone, Default)]
 struct ReadPointCloudOptions<'a> {

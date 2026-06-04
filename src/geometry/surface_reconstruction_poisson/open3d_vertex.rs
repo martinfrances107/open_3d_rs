@@ -1,16 +1,21 @@
+use nalgebra::Point;
 use nalgebra::SVector;
 use nalgebra::Vector;
 
-use crate::io::Point;
-
-struct Open3DVertex<REAL> {
+struct Open3DVertex<REAL>
+where
+    REAL: 'static + Clone + std::fmt::Debug + PartialEq,
+{
     point: Point<REAL, 3>,
     normal: Option<SVector<REAL, 3>>,
     color: Option<SVector<REAL, 3>>,
     w: f64,
 }
 
-impl<REAL> Open3DVertex<REAL> {
+impl<REAL> Open3DVertex<REAL>
+where
+    REAL: 'static + Clone + std::fmt::Debug + PartialEq,
+{
     const fn new(point: Point<REAL, 3>) -> Self {
         Self {
             point,

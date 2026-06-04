@@ -7,7 +7,8 @@ use std::ops::MulAssign;
 use nalgebra::Const;
 use nalgebra::OPoint;
 use nalgebra::Point;
-use nalgebra::Vector;
+use nalgebra::Vector3;
+
 use num_traits::Zero;
 use std::fmt::Debug;
 
@@ -17,8 +18,20 @@ pub struct Open3DData<REAL, const D: usize>
 where
     REAL: 'static + Clone + std::fmt::Debug + Default + PartialEq,
 {
-    normal: Point<REAL, D>,
-    color: Point<REAL, D>,
+    pub normal: Point<REAL, D>,
+    pub color: Point<REAL, D>,
+}
+
+impl<REAL> From<(Vector3<REAL>, Vector3<REAL>)> for Open3DData<REAL, 3>
+where
+    REAL: Clone + std::fmt::Debug + Default + PartialEq + Zero,
+{
+    fn from(values: (Vector3<REAL>, Vector3<REAL>)) -> Self {
+        Self {
+            normal: values.0.into(),
+            color: values.1.into(),
+        }
+    }
 }
 
 impl<REAL, const D: usize> Default for Open3DData<REAL, D>

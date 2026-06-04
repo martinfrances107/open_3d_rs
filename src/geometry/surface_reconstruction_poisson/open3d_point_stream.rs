@@ -1,4 +1,5 @@
 use nalgebra::Point;
+use num_traits::Zero;
 
 use super::DIMENSION;
 use crate::geometry::surface_reconstruction_poisson::PointCloud;
@@ -15,9 +16,12 @@ use crate::geometry::surface_reconstruction_poisson::xform::XForm;
 /// which is a third party device like the XBOX scanner.
 // CPP version depends on InputPointStreamWithData
 #[derive(Debug)]
-pub struct Open3DPointStream<REAL: Copy> {
+pub struct Open3DPointStream<REAL>
+where
+    REAL: 'static + Clone + Copy + std::fmt::Debug + PartialEq + Zero,
+{
     pcd: PointCloud<REAL>,
-    xform: Option<XForm<REAL, 4>>,
+    pub xform: Option<XForm<REAL, 4>>,
     current: usize,
 }
 
@@ -46,7 +50,7 @@ pub struct Open3DPointStream<REAL: Copy> {
 
 impl<REAL> Open3DPointStream<REAL>
 where
-    REAL: Copy + std::fmt::Debug + Default + PartialEq,
+    REAL: Copy + std::fmt::Debug + Default + PartialEq + num_traits::Zero,
 {
     pub const fn new(pcd: PointCloud<REAL>) -> Self {
         Self {

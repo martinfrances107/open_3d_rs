@@ -1,3 +1,5 @@
+use std::ops::Div;
+use std::ops::DivAssign;
 use std::sync::Arc;
 use std::time::SystemTime;
 
@@ -10,6 +12,7 @@ use crate::geometry::surface_reconstruction_poisson::open3d_point_stream::Open3D
 use crate::geometry::surface_reconstruction_poisson::xform::XForm;
 use crate::geometry::triangle_mesh::Mesh;
 use crate::geometry::triangle_mesh::TriangleMesh;
+use nalgebra::Point;
 
 // The order of the B-Spline used to splat in data for color interpolation
 const DATA_DEGREE: i16 = 0;
@@ -69,10 +72,19 @@ pub fn create_from_point_cloud_poisson<REAL, MESH>(
 ) -> Result<(Arc<MESH>, Vec<f64>), NoNormalError>
 where
     MESH: Default,
-    REAL: 'static + Clone + Copy + std::fmt::Debug + Default + PartialEq,
+    REAL: 'static
+        + Clone
+        + std::marker::Copy
+        + std::fmt::Debug
+        + Default
+        + Div<REAL, Output = REAL>
+        + DivAssign<REAL>
+        + PartialEq
+        + From<f32>
+        + num_traits::Zero,
 {
     let options = PointCloudPoissonOptions::default();
-    create_from_point_cloud_poisson_with_options(pcd, &options)
+    create_from_point_cloud_poisson_with_options::<REAL, MESH>(pcd, &options)
 }
 
 ///
@@ -85,7 +97,16 @@ pub fn create_from_point_cloud_poisson_with_options<REAL, MESH>(
 ) -> Result<(Arc<MESH>, Vec<f64>), NoNormalError>
 where
     MESH: Default,
-    REAL: 'static + Clone + Copy + std::fmt::Debug + Default + PartialEq,
+    REAL: 'static
+        + Clone
+        + From<f32>
+        + std::marker::Copy
+        + std::fmt::Debug
+        + Default
+        + DivAssign<REAL>
+        + Div<REAL, Output = REAL>
+        + PartialEq
+        + num_traits::Zero,
 {
     let PointCloudPoissonOptions {
         depth,
@@ -108,7 +129,7 @@ where
 
 // IF F - f32 V must be Vec3
 // if F - f64 V must be DVec3
-fn execute<REAL, const D: usize, SAMPLEDATA, FEMSIGNS>(
+fn execute<REAL, const DIM: usize, SAMPLEDATA, FEMSIGNS>(
     pcd: &PointCloud<REAL>,
     out_mesh: &Arc<TriangleMesh<REAL>>,
     out_densities: &[f64],
@@ -119,7 +140,17 @@ fn execute<REAL, const D: usize, SAMPLEDATA, FEMSIGNS>(
     // TODO what about
     //  UIntPack<FEMSigs...>
 ) where
-    REAL: 'static + Clone + Copy + std::fmt::Debug + Default + PartialEq,
+    Point<REAL, DIM>: DivAssign<REAL>,
+    REAL: 'static
+        + Clone
+        + Copy
+        + std::fmt::Debug
+        + Default
+        + Div<REAL>
+        + DivAssign<REAL>
+        + PartialEq
+        + num_traits::Zero,
+    REAL: From<f32>,
 {
     let datax = 32_f32;
     let base_depth = 0;
@@ -140,7 +171,7 @@ fn execute<REAL, const D: usize, SAMPLEDATA, FEMSIGNS>(
     let point_count: usize;
     let point_weight_sum = 0;
 
-    let smaple_data: Vec<Open3DData<REAL, D>>;
+    let smaple_data: Vec<Open3DData<REAL, DIM>>;
     // TODO density estimatior;
     // SparseNodeData
     //let normal_info = None;
@@ -149,9 +180,30 @@ fn execute<REAL, const D: usize, SAMPLEDATA, FEMSIGNS>(
 
     {
         let point_stream = Open3DPointStream::new(*pcd);
-        if width > 0.0 {
-            // let xform = XForm::get_point_x_form_with_scale(scale_factor)
+        let xform = if width > 0.0 {
+            let s = if scale > 0_f32 { scale } else { 1_f32 };
+            // let xform = XForm::get_point_x_form_with_scale(s)
             todo!();
+        } else {
+            todo!();
+        };
+
+        point_stream.xform = xform;
+
+        {
+            let process_data_with_confidence =
+                |p: Point<REAL, DIM>, d: Open3DData<REAL, DIM>| {
+                    let l = d.normal.norm();
+                    return if !l || l != REAL::from(1_f32) {
+                        REAL::from(-1.0_f32)
+                    } else {
+                        d.normal /= REAL::from(1_f32);
+                        l
+                    };
+                };
+
+            let process_data =
+                |p: Point<REAL, DIM>, d: Open3DData<REAL, DIM>| {};
         }
     }
 }
